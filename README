@@ -1,0 +1,14 @@
+Tools for the ANR ASTuS project 21-CE01-0007-01
+
+Data analysis for 
+- CALIOP L1 and L2 data (in progress)
+- OMPS-LP L1 date (in progress)
+- MLS L1 data (in progress)
+- IMS/IASI L3 gridded data 
+- GEOs RGB-Ash (in progress)
+- Aeolus/ALADIN L2 wind and backscatter (soon)
+- GPS-RO (soon)
+
+Some of the packages depend on pylib packages in the STC project
+
+https://github.com/bernard-legras/STC/tree/master/pylib
