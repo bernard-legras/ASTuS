@@ -7,9 +7,9 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.14.0
   kernelspec:
-    display_name: p310
+    display_name: p39n
     language: python
-    name: p310
+    name: p39n
 ---
 
 # Analysis of IMS data for the HT-plume
