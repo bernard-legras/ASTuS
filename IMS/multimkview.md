@@ -14,12 +14,12 @@ jupyter:
 
 # IMS combi and movie maker
 
-```python
+
 Copyright or © or Copr.  Bernard Legras (2022)
 under CeCILL-C license "http://www.cecill.info".
 
 bernard.legras@lmd.ipsl.fr
-```
+
 
 This notebook produces the combined SA N + D views of the IMS/IASI product and makes a movie of the series of images
 
