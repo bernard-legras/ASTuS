@@ -7,9 +7,9 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.14.0
   kernelspec:
-    display_name: p39n
+    display_name: p310
     language: python
-    name: p39n
+    name: p310
 ---
 
 # Analysis of IMS data for the HT-plume
@@ -91,6 +91,9 @@ with gzip.open('meanIMS.pkl','rb') as f:
 
 Latitude boundaries and time scale
 
+
+This section requires the zonal average to be run to provides dat.attr & days
+
 ```python
 lats_edge = np.arange(dat.attr['la0'],dat.attr['la1']+0.5*dat.attr['dla'],dat.attr['dla'])
 jy0 = np.where(lats_edge > -35)[0][0]
@@ -128,14 +131,6 @@ ax1.grid(True)
 plt.show()
 ```
 
-```python
-column_CALIOP.shape
-xx = mdates.date2num(attribs['days'])
-apr30 = np.where(xx == mdates.date2num(date(2022,4,30)))[0][0]
-column_CALIOP.shape
-attribs['days'][93]
-```
-
 Same figure as a second row of a composite where the first row is made with plots from SA and SO2 for 20 January plus room for Hima image same day at related hour
 This is figure 4 of the HT plume paper
 ACHTUNG ACHTUNG: this figure fails to be produced with correct layout on Windows 
@@ -143,6 +138,7 @@ This seems to be a problem with constrained_layout
 
 ```python
 fig = plt.figure(constrained_layout=True,figsize=(17,5.7))
+figsave = True
 #fig = plt.figure(figsize=(17,5.7))
 gs0 = fig.add_gridspec(2,1)
 gs1 = gs0[0].subgridspec(1,5,width_ratios=[10,0.8,10,0.6,10])
@@ -240,7 +236,7 @@ ax2.annotate('b)',(-0.01,1.05),xycoords='axes fraction',fontsize=14)
 ax5.annotate('f)',(-0.06,1.04),xycoords='axes fraction',fontsize=14)
 ax4.annotate('c)',(0.02,0.95),xycoords='axes fraction',fontsize=14)
 
-plt.savefig('fig4.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('fig4.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
@@ -254,6 +250,7 @@ dat.read('SA','N')
 dat.read('SO2','N')
 # Conversion factor from ppbv to DU for SO2
 ppbv2DU = 0.79
+figsave = False
 
 #IMS plots
 ax3 = fig.add_subplot(gs[3],projection=ccrs.PlateCarree())
@@ -304,8 +301,12 @@ ax0.annotate('e)',(-0.05,1.04),xycoords='axes fraction',fontsize=14)
 ax1.annotate('f)',(-0.01,1.04),xycoords='axes fraction',fontsize=14)
 ax2.annotate('h)',(-0.1,1.05),xycoords='axes fraction',fontsize=14)
 ax3.annotate('g)',(-0.1,1.05),xycoords='axes fraction',fontsize=14)
-#plt.savefig('IMS-CALIOP-fig3.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('IMS-CALIOP-fig3.png',dpi=300,bbox_inches='tight')
 plt.show()
+```
+
+```python
+
 ```
 
 ## Composite des images SA
@@ -315,11 +316,12 @@ plt.show()
 <!-- #endregion -->
 
 ```python
-days = [date(2022,1,27),date(2022,2,2),date(2022,2,9),date(2022,2,11),date(2022,2,19),date(2022,3,3),date(2022,3,17),date(2022,4,7)]
-ND = ['N','N','D','N','N','N','N','D']
-anot = ['a)','b)','c)','d)','e)','f)','g)','h)']
-sel = [2,2,2,2,2,2,2,3]
-idx = [19,99,220,231,346,522,736,98]
+figsave = False
+days1 = [date(2022,1,27),date(2022,2,2),date(2022,2,9),date(2022,2,11),date(2022,2,19),date(2022,3,3),date(2022,3,17),date(2022,4,7)]
+ND1 = ['N','N','D','N','N','N','N','D']
+anot1 = ['a)','b)','c)','d)','e)','f)','g)','h)']
+sel1 = [2,2,2,2,2,2,2,3]
+idx1 = [19,99,220,231,346,522,736,98]
 cm = 180
 
 sektions ={}
@@ -331,19 +333,19 @@ with gzip.open(os.path.join('..','HT-HT','sektions_caliop.3_nit.pkl'),'rb') as f
 fig, axs = plt.subplots(figsize=(12,12),nrows=8,ncols=1,sharex=True,\
                       subplot_kw={"projection":ccrs.PlateCarree(central_longitude=cm)})
 jd = 0
-for day in days:
+for day in days1:
     dat = IMS.IMS(day)
-    dat.read('SA',ND[jd])
+    dat.read('SA',ND1[jd])
     dat2 = dat.shift(0)
     if jd == 7: bottom=True
     else: bottom = False
-    im = dat2.show('SA_'+ND[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,ylims=(-35,0),bottom=bottom)
-    axs[jd].annotate(anot[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
+    im = dat2.show('SA_'+ND1[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,ylims=(-35,0),bottom=bottom)
+    axs[jd].annotate(anot1[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
     #axs[jd].annotate('27 Jan',(0.01,0.845),xycoords='axes fraction',fontsize=14,color='red')
-    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND[jd], ha="center", va="center", size=15,
+    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND1[jd], ha="center", va="center", size=15,
     bbox=dict(boxstyle="square,pad=0.2", fc="cyan", ec="b", lw=2))
-    axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']-cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
-    axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']+cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
+    axs[jd].plot(sektions[sel1[jd]]['data'][idx1[jd]]['lons']-cm,sektions[sel1[jd]]['data'][idx1[jd]]['lats'],'r',lw=3)
+    axs[jd].plot(sektions[sel1[jd]]['data'][idx1[jd]]['lons']+cm,sektions[sel1[jd]]['data'][idx1[jd]]['lats'],'r',lw=3)
     axs[jd].set_ylim(-35,0)
     jd += 1
 fig.subplots_adjust(bottom=0.06)
@@ -351,7 +353,7 @@ cbar_ax = fig.add_axes([0.2,0.02,0.6,0.02])
 # colorbar ticks must be set manually here
 cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2])
 cbar.ax.set_xticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
-plt.savefig('IMS-fig5.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('IMS-fig5.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
@@ -360,12 +362,12 @@ plt.show()
 <!-- #endregion -->
 
 ```python
-days = [date(2022,1,24),date(2022,1,27),date(2022,2,2),date(2022,2,11),date(2022,2,19),
+days2 = [date(2022,1,24),date(2022,1,27),date(2022,2,2),date(2022,2,11),date(2022,2,19),
         date(2022,3,3),date(2022,4,7)]
-ND = ['N','N','N','N','N','N','D']
-anot = ['a)','b)','c)','d)','e)','f)','g)']
-sel = [-1,2,2,2,2,2,3]
-idx = [-1,19,99,231,346,522,98]
+ND2 = ['N','N','N','N','N','N','D']
+anot2 = ['a)','b)','c)','d)','e)','f)','g)']
+sel2 = [-1,2,2,2,2,2,3]
+idx2 = [-1,19,99,231,346,522,98]
 cm = 180
 
 sektions ={}
@@ -377,20 +379,20 @@ with gzip.open(os.path.join('..','HT-HT','sektions_caliop.3_nit.pkl'),'rb') as f
 fig, axs = plt.subplots(figsize=(12,12*7/8),nrows=7,ncols=1,sharex=True,\
                       subplot_kw={"projection":ccrs.PlateCarree(central_longitude=cm)})
 jd = 0
-for day in days:
+for day in days2:
     dat = IMS.IMS(day)
-    dat.read('SA',ND[jd])
+    dat.read('SA',ND2[jd])
     dat2 = dat.shift(0)
     if jd == 6: bottom=True
     else: bottom = False
-    im = dat2.show('SA_'+ND[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
+    im = dat2.show('SA_'+ND2[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
                    ylims=(-35,0),bottom=bottom)
-    axs[jd].annotate(anot[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
-    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND[jd], ha="center", va="center", size=15,
+    axs[jd].annotate(anot2[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
+    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND2[jd], ha="center", va="center", size=15,
     bbox=dict(boxstyle="square,pad=0.2", fc="cyan", ec="b", lw=2))
-    if sel[jd]>=0:
-        axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']-cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
-        axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']+cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
+    if sel2[jd]>=0:
+        axs[jd].plot(sektions[sel2[jd]]['data'][idx2[jd]]['lons']-cm,sektions[sel2[jd]]['data'][idx2[jd]]['lats'],'r',lw=3)
+        axs[jd].plot(sektions[sel2[jd]]['data'][idx2[jd]]['lons']+cm,sektions[sel2[jd]]['data'][idx2[jd]]['lats'],'r',lw=3)
     axs[jd].set_ylim(-35,0)
     jd += 1
 fig.subplots_adjust(bottom=0.06)
@@ -404,12 +406,16 @@ plt.show()
 
 #### Version 3
 
+
+ACHTUNG: This version requires lon28 and lat28 which are provided by the AEOLUS section below
+
 ```python
-days = [date(2022,1,28),date(2022,2,4),date(2022,2,22),date(2022,3,7)]
-ND = ['D','D','N','N']
-anot = ['a)','b)','c)','d)','e)','f)','g)']
-sel = [2,2,2,2,2,3]
-idx = [19,99,231,346,522,98]
+figsave = False
+days3 = [date(2022,1,28),date(2022,2,4),date(2022,2,22),date(2022,3,7)]
+ND3 = ['D','D','N','N']
+anot3 = ['a)','b)','c)','d)','e)','f)','g)']
+sel3 = [2,2,2,2,2,3]
+idx3 = [19,99,231,346,522,98]
 cm = 0
 
 sektions ={}
@@ -421,21 +427,21 @@ with gzip.open(os.path.join('..','HT-HT','sektions_caliop.3_nit.pkl'),'rb') as f
 fig, axs = plt.subplots(figsize=(14,7),nrows=4,ncols=1,sharex=True,\
                       subplot_kw={"projection":ccrs.PlateCarree(central_longitude=cm)})
 jd = 0
-for day in days:
+for day in days3:
     dat = IMS.IMS(day)
     dat.read('SA',ND[jd])
     dat2 = dat
     if jd == 3: bottom=True
     else: bottom = False
     bottom=True
-    im = dat2.show('SA_'+ND[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
+    im = dat2.show('SA_'+ND3[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
                    ylims=(-35,0),bottom=bottom)
-    axs[jd].annotate(anot[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
-    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND[jd], ha="center", va="center", size=15,
+    axs[jd].annotate(anot3[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
+    axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND3[jd], ha="center", va="center", size=15,
     bbox=dict(boxstyle="square,pad=0.2", fc="cyan", ec="b", lw=2))
     if jd == 0:
-        axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']-cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
-        axs[jd].plot(sektions[sel[jd]]['data'][idx[jd]]['lons']+cm,sektions[sel[jd]]['data'][idx[jd]]['lats'],'r',lw=3)
+        axs[jd].plot(sektions[sel3[jd]]['data'][idx3[jd]]['lons']-cm,sektions[sel3[jd]]['data'][idx3[jd]]['lats'],'r',lw=3)
+        axs[jd].plot(sektions[sel3[jd]]['data'][idx3[jd]]['lons']+cm,sektions[sel3[jd]]['data'][idx3[jd]]['lats'],'r',lw=3)
         axs[jd].plot(lon28,lat28,lw=3,color='orange')
     axs[jd].set_ylim(-35,0)
     jd += 1
@@ -444,17 +450,16 @@ cbar_ax = fig.add_axes([0.2,0.02,0.6,0.02])
 # colorbar ticks must be set manually here
 cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2,3e-2])
 cbar.ax.set_xticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$',u'3 10$^{-2}$'])
-plt.savefig('IMS-fig5ter.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('IMS-fig5ter.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
-### Extraction des cas intéressants
-<!-- #endregion -->
+#### Selection of interesting regions for the last 6 cases of version 2
 
 ```python
 # This needs gridspec instead of subplots as the projections are différents
 fig = plt.figure(constrained_layout=True,figsize=(7,5))
+figsave = False
 gs = fig.add_gridspec(2,3)
 
 axc = []
@@ -466,26 +471,26 @@ for jd in range(6):
     else : cm = 0
     axc.append(fig.add_subplot(gs[jy[jd],ix[jd]],
                 projection=ccrs.PlateCarree(central_longitude=cm)))
-    day = days[jd+1]
+    day = days2[jd+1]
     dat = IMS.IMS(day)
-    dat.read('SA',ND[jd+1])
+    dat.read('SA',ND2[jd+1])
     if cm == 0: dat2 = dat
     else: dat2 = dat.shift(0)
     #if jd == 7: bottom=True
     #else: bottom = False
-    lon = catal[sel[jd+1]]['data'][idx[jd+1]]['lon']
+    lon = catal[sel2[jd+1]]['data'][idx2[jd+1]]['lon']
     if jd in [1,2]: lon = lon%360
     else: 
         if lon > 180: lon -= 360
-    im = dat2.show('SA_'+ND[jd+1],axf=axc[jd],txt=' ',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
+    im = dat2.show('SA_'+ND2[jd+1],axf=axc[jd],txt=' ',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
                    ylims=(-35,0),xlims=(lon-15-cm,lon+15-cm),bottom=True)
-    axc[jd].set_title(anot[jd+1]+catal[sel[jd+1]]['data'][idx[jd+1]]['date'].strftime('  %d %b'))
+    axc[jd].set_title(anot2[jd+1]+catal[sel2[jd+1]]['data'][idx2[jd+1]]['date'].strftime('  %d %b'))
     #axc[jd].plot(sektions[sel[jd+1]]['data'][idx[jd+1]]['lons']-cm,sektions[sel[jd+1]]['data'][idx[jd+1]]['lats'],'r',lw=3)
-    axc[jd].plot(sektions[sel[jd+1]]['data'][idx[jd+1]]['lons']+cm,sektions[sel[jd+1]]['data'][idx[jd+1]]['lats'],'r',lw=3)
+    axc[jd].plot(sektions[sel2[jd+1]]['data'][idx2[jd+1]]['lons']+cm,sektions[sel2[jd+1]]['data'][idx2[jd+1]]['lats'],'r',lw=3)
 fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91,0.2,0.02,0.6])
 fig.colorbar(im,cax=cbar_ax,orientation='vertical')   
-plt.savefig('IMS-fig6bis.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('IMS-fig6bis.png',dpi=300,bbox_inches='tight')
 ```
 
 <!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
@@ -502,21 +507,25 @@ with gzip.open(os.path.join('..','HT-HT','superCatal_caliop.3_nit.pkl'),'rb') as
     catal[3] = pickle.load(f)
 ```
 
-#### Row plot
+#### One-line plot for version 1
+
+
+Designed after version 1 of fig. 3
 
 ```python
 fig, axc = plt.subplots(figsize=(15,2),nrows=1,ncols=8,sharey=True)
+figsave = False
 latsEdge = catal[2]['attr']['lats_edge']
 altsEdge = catal[2]['attr']['alts_edge']
 
 im = {}
 for jd in range(8):
-    im[jd] = axc[jd].pcolormesh(latsEdge,altsEdge,catal[sel[jd]]['data'][idx[jd]]['SR532'].T,
+    im[jd] = axc[jd].pcolormesh(latsEdge,altsEdge,catal[sel1[jd]]['data'][idx1[jd]]['SR532'].T,
                                 norm=colors.LogNorm(vmin=0.5,vmax=200),cmap='gist_ncar',)
     axc[jd].set_xlim(-35,0)
     axc[jd].set_ylim(18,30)
     axc[jd].grid(True)
-    axc[jd].set_title(anot[jd]+catal[sel[jd]]['data'][idx[jd]]['date'].strftime('  %d %b'))
+    axc[jd].set_title(anot1[jd]+catal[sel1[jd]]['data'][idx1[jd]]['date'].strftime('  %d %b'))
     axc[jd].set_xlabel('Latitude')
 
 axc[0].set_ylabel('Altitude (km)')
@@ -524,27 +533,28 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91,0.2,0.02,0.6])
 fig.colorbar(im[0],cax=cbar_ax,orientation='vertical')   
 
-plt.savefig('CALIOP-fig6.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('CALIOP-fig6.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
-New caliop plot
+### New two-line Caliop plot to match the interesting orbits of IASI for fig.3 version 2
 
 ```python
 fig, axc = plt.subplots(figsize=(7,5),nrows=2,ncols=3,sharey=True,sharex=True)
+figsave = False
 axc = axc.flatten()
 latsEdge = catal[2]['attr']['lats_edge']
 altsEdge = catal[2]['attr']['alts_edge']
 
 im = {}
 for jd in range(6):
-    print(catal[sel[jd+1]]['data'][idx[jd+1]]['lon'])
-    im[jd] = axc[jd].pcolormesh(latsEdge,altsEdge,catal[sel[jd+1]]['data'][idx[jd+1]]['SR532'].T,
+    print(catal[sel2[jd+1]]['data'][idx2[jd+1]]['lon'])
+    im[jd] = axc[jd].pcolormesh(latsEdge,altsEdge,catal[sel2[jd+1]]['data'][idx2[jd+1]]['SR532'].T,
                                 norm=colors.LogNorm(vmin=0.5,vmax=200),cmap='gist_ncar',)
     axc[jd].set_xlim(-35,0)
     axc[jd].set_ylim(18,30)
     axc[jd].grid(True)
-    axc[jd].set_title(anot[jd+1]+catal[sel[jd+1]]['data'][idx[jd+1]]['date'].strftime('  %d %b'))
+    axc[jd].set_title(anot2[jd+1]+catal[sel2[jd+1]]['data'][idx2[jd+1]]['date'].strftime('  %d %b'))
     if jd > 2: axc[jd].set_xlabel('Latitude')
     #
     else: axc[jd].set_xticklabels('')
@@ -554,12 +564,8 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91,0.2,0.02,0.6])
 fig.colorbar(im[0],cax=cbar_ax,orientation='vertical')   
 
-plt.savefig('IMS-fig6ter.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('IMS-fig6ter.png',dpi=300,bbox_inches='tight')
 plt.show()
-```
-
-```python
-catal[2]['data'][223].keys()
 ```
 
 <!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
@@ -617,6 +623,7 @@ print('28 Jan',date28,np.mean(lon28))
 ```python
 # This needs gridspec instead of subplots as the projections are différents
 fig = plt.figure(constrained_layout=True,figsize=(18,8))
+savefig = False
 gs = fig.add_gridspec(2,4)
 latsEdge = catal[2]['attr']['lats_edge']
 altsEdge = catal[2]['attr']['alts_edge']
@@ -761,11 +768,11 @@ fig.colorbar(im7, cax=cax, orientation='vertical')
 buf = div7.append_axes('left', size='6%', pad=0.07)
 buf.axis('off')
 
-plt.savefig('NewFig6.png',dpi=300,bbox_inches='tight')
+if savefig: plt.savefig('NewFig6.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
+<!-- #region jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] -->
 ## Investigation for spurious large values
 <!-- #endregion -->
 
