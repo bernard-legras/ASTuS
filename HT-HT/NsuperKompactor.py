@@ -108,7 +108,7 @@ if sel == 2:
 elif sel == 3:
     with gzip.open('NCald3.pkl','rb') as f:
         NCald = pickle.load(f)
-    listi = range(1306,len(NCald[ND])+1)
+    listi = range(1788,len(NCald[ND])+1)
 elif sel ==0:
     with gzip.open('NCald0.pkl','rb') as f:
         NCald = pickle.load(f)
@@ -262,5 +262,5 @@ lats3_edge = np.append(np.insert(lats3_edge,0,1.5*lats3[0]-0.5*lats3[1]),
                   1.5*lats3[-1]-0.5*lats3[-2])
 catal['attr'] = {'lats':lats3,'alts':alts[top:bottom],'lats_edge':lats3_edge,
                  'alts_edge':alts_edges[top:bottom+1],'malts':malts1[mtop:mbottom]}
-with gzip.open(os.path.join('.','superCatal_caliop.'+str(sel)+'_'+ND+'-s13.pkl'),'wb') as f:
+with gzip.open(os.path.join('.','superCatal_caliop.'+str(sel)+'_'+ND+'-s15.pkl'),'wb') as f:
         pickle.dump(catal,f,protocol=pickle.HIGHEST_PROTOCOL)

@@ -133,8 +133,8 @@ day0 = date(2022,5,4)
 day1 = date(2022,5,6)
 day0 = date(2022,5,15)
 day1 = date(2022,5,19)
-day0 = date(2022,6,29)
-day1 = date(2022,7,11)
+day0 = date(2022,8,1)
+day1 = date(2022,8,9)
 day = day0
 
 while day <= day1:
@@ -227,5 +227,5 @@ while day <= day1:
     plt.close()
 
     combinat['attr'] = {'lats':lats,'alts':alts[top:bottom],'lats_edge':lats2,'alts_edge':alts_edges[top:bottom+1]}
-    with gzip.open(os.path.join('.','Ncombinat-daily-'+str(sel)+'_'+ND+'-s13.pkl'),'wb') as f:
+    with gzip.open(os.path.join('.','Ncombinat-daily-'+str(sel)+'_'+ND+'-s15.pkl'),'wb') as f:
         pickle.dump(combinat,f,protocol=pickle.HIGHEST_PROTOCOL)
