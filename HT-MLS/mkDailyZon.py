@@ -20,7 +20,7 @@ import gzip, pickle
 
 nlev = 19
 date1 = datetime(2022,1,27)
-date2 = datetime(2022,6,6)
+date2 = datetime(2022,8,10)
 date = date1
 
 combinat = {}

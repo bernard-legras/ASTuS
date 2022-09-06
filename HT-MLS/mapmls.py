@@ -29,6 +29,9 @@ if 'gort' == socket.gethostname():
 elif 'satie' in socket.gethostname():
     rootdir = '/data/ASTuS/HT-MLS'
     dirMLS = '/data/MLS'
+elif 'Mentat' in socket.gethostname():
+    rootdir = "C:\\cygwin64\\home\\berna\\data\\ASTuS\\HT-MLS"
+    dirMLS = "C:\\cygwin64\\home\\berna\\data\\MLS"
 
 # Domain and resolution of the bins
 # HT: Here we take the full domain

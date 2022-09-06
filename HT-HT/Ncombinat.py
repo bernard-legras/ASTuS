@@ -17,7 +17,7 @@ the ATBD formulae for the molecular scattering.
 In the present application the levels 32 to 125 are selected in the original 
 section (93 levels) and the latitudes are truncated between 35S and 20N.
 As the latitude sampling varies from orbit to orbit, the [35S, 20N] interval is
-sampled over 3665 values corresponding to 5 km resolution which is nominal 
+sampled over 3665 values corresponding to 1665m resolution which is nominal 
 between 20 and 30 km. The original data are grouped and average by 5. 
 The findbndry fuction finds the boundary of blocks where the values are identical.
 This should be the case, but not always, hence the exploration by finbndry to 

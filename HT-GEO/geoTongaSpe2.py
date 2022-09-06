@@ -8,10 +8,7 @@ HongaTonga coordinates:
     20° 33' S
     175° 21' W
 
-Copyright or © or Copr.  Bernard Legras (2022)
-under CeCILL-C license "http://www.cecill.info".
-
-bernard.legras@lmd.ipsl.fr
+@author: b.legras
 """
 
 #import pickle,gzip
@@ -65,6 +62,7 @@ fig.subplots_adjust(hspace=0,wspace=0.05,top=0.925,left=0.)
 ja = 0
 lefts = [True,False,True,False]
 bottoms = [False,False,True,True]
+cm_lon = 180
 for date in dates:
     print(date)
     ah = geosat.Himawari(date)
@@ -74,12 +72,14 @@ for date in dates:
     ah.close()
     ph = geosat.SatGrid(ah,gg)
     ph._sat_togrid('Ash')
-    ax[ja] = ph.chart('Ash',txt=date.strftime('%Y-%m-%d %H:%M UTC'),
-             axf=ax[ja],subgrid=subgg,show=False,cm_lon=180,
+    ax[ja] = ph.chart('Ash',txt=date.strftime('%d-%b-%Y %H:%M UTC'),
+             axf=ax[ja],subgrid=subgg,show=False,cm_lon=cm_lon,
              left=lefts[ja],bottom=bottoms[ja])
     if ja==3:
-        ax[ja].plot(lons-180,lats,'k')
+        ax[ja].plot(lons-cm_lon,lats,'k')
         ax[ja].set_ylim((slat,nlat))
+    #plot the location of the Volcano
+    ax[ja].scatter([360-174.38-cm_lon,],[-20.54,],color='r',marker='+',s=64,linewidth=9)
     print('chart processed')
     ja += 1
 

@@ -88,5 +88,5 @@ while day <= day2:
     day += timedelta(days=1)
 
 zonMean['attr'] = datr.attr
-with gzip.open(dd.strftime('zonDailyMean-%b-d%d.pkl'),'wb') as f:
+with gzip.open(day1.strftime('zonDailyMean-%b-d%d.pkl'),'wb') as f:
     pickle.dump(zonMean,f,protocol=pickle.HIGHEST_PROTOCOL)

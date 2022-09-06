@@ -8,10 +8,7 @@ HongaTonga coordinates:
     20° 33' S
     175° 21' W
 
-Copyright or © or Copr.  Bernard Legras (2022)
-under CeCILL-C license "http://www.cecill.info".
-
-bernard.legras@lmd.ipsl.fr
+@author: b.legras
 """
 
 #import pickle,gzip
@@ -54,5 +51,5 @@ ph._sat_togrid('Ash')
 #%%
 subgg = band.subgrid([60,130,-30,0])
 patchf = pm1.patch(ph,90,'Ash')
-patchf.chart('Ash',txt='Ash composit MSG1 + Hima 8 '+dd0.strftime('%Y-%m-%d %H:%M'),subgrid=subgg,show=False)
+patchf.chart('Ash',txt='Ash composit MSG1 + Hima 8 '+dd0.strftime('%d-%b-%Y %H:%M'),subgrid=subgg,show=False)
 plt.savefig('RGB-16h-fig4.png',dpi=300,bbox_inches='tight')

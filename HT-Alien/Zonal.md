@@ -243,7 +243,7 @@ dLPVdym[:,-1] = (LPVm[:,-1]-LPVm[:,-2])
 #dLPVdym/= deg2m
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
+<!-- #region jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] -->
 #### Check for the problem with DZDt
 <!-- #endregion -->
 
@@ -535,7 +535,7 @@ sec = '05-15'
 figsave = False
 fig,axes = plt.subplots(figsize=(16,6),nrows=2,ncols=2,sharex=True,sharey=True)
 xx = mdates.date2num(days)
-date_format = mdates.DateFormatter('%b-%d')
+date_format = mdates.DateFormatter('%d-%b')
 Xxx = np.reshape(np.tile(xx,137),(137,len(xx)))
 Zl = sections[sec]['Z']
 
@@ -660,7 +660,7 @@ Plot the evolution on levels 35, 37, 39
 ```python
 fig,axes = plt.subplots(figsize=(16,6),nrows=2,ncols=2,sharex=True,sharey=False)
 xx = mdates.date2num(days)
-date_format = mdates.DateFormatter('%b-%d')
+date_format = mdates.DateFormatter('%d-%b')
 labs = {35:'26.4 km',37:'25.3 km',39:'24.2 km'}
 figsave = False
 
@@ -720,17 +720,29 @@ plt.show()
 
 
 Must be run after the average in latitude range above for both values of sec in order to generate buffers bufω and bufw
+The enddate is the last one of the time plots.
+
+```python
+bufω.shape
+```
+
+```python
+Zl.shape
+```
 
 ```python
 cmap = mymap
 ymin = 18
 ymax = 30
-xx = mdates.date2num(days)
-date_format = mdates.DateFormatter('%b-%d')
+enddate = date(2022,7,26)
+end = np.where([enddate < day for day in days])[0][0]
+xx = mdates.date2num(days[:end])
+date_format = mdates.DateFormatter('%d-%b')
 Xxx = np.reshape(np.tile(xx,137),(137,len(xx)))
 shading = 'gouraud'
 Xlats = np.reshape(np.tile(lats,137),(137,56))
-figsave = False
+figsave = True
+divgt = True
 
 fig = plt.figure(constrained_layout=True,figsize=(14,10*14/16))
 gs0 = fig.add_gridspec(2,1,height_ratios=(2,3))
@@ -746,7 +758,10 @@ ax2 = fig.add_subplot(gs2[1,0])
 ax3 = fig.add_subplot(gs2[1,1])
 
 # a) Angular velocty
-im4 = ax4.pcolormesh(lats,Zm,ωm,cmap=cmap,shading=shading,vmin=-30,vmax=10)
+vmin = -30
+if divgt: vmax = -vmin
+else: vmax = 10
+im4 = ax4.pcolormesh(lats,Zm,ωm,cmap=cmap,shading=shading,vmin=vmin,vmax=vmax)
 ax4.contour(Xlats,Zm,ωm,(-30,-25,-20,-15,-10,-5,0,5,10),linewidths=(1,1,1,1,1,1,4,1,1))
 divider = make_axes_locatable(ax4)
 cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -759,7 +774,10 @@ ax4.set_title('Angular speed (degree/day)')
 ax4.annotate('a)',(-0.12,1.02),xycoords='axes fraction',fontsize=14)
 
 # b) DZDt diabatic
-im11 = ax11.pcolormesh(lats,Zm,dZdθm * ASRm * (θm/Tm),vmin=-50,vmax=100,cmap=cmap,shading=shading)
+vmax = 100
+if divgt: vmin = -vmax
+else: vmin = -50
+im11 = ax11.pcolormesh(lats,Zm,dZdθm * ASRm * (θm/Tm),vmin=vmin,vmax=vmax,cmap=cmap,shading=shading)
 ax11.contour(Xlats,Zm,dZdθm * ASRm * (θm/Tm),np.arange(-25,100,25),linewidths=(1,4,1,1,1))
 divider = make_axes_locatable(ax11)
 cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -774,7 +792,10 @@ ax11.set_title('Diabatic radiative DZ/Dt (m/day)')
 ax11.annotate('b)',(-0.,1.02),xycoords='axes fraction',fontsize=14)
 
 # c) DZDt adiabatic
-im12 = ax12.pcolormesh(lats,Zm,DZDtAdiabm,cmap=cmap,vmax=10,vmin=-7,shading=shading)
+vmax = 5
+if divgt: vmin = -vmax
+else: vmin = -5
+im12 = ax12.pcolormesh(lats,Zm,DZDtAdiabm,cmap=cmap,vmax=vmax,vmin=vmin,shading=shading)
 ax12.contour(Xlats,Zm,DZDtAdiabm,np.arange(-6,10,2),linewidths=(1,1,1,4,1,1,1,1)) 
 divider = make_axes_locatable(ax12)
 cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -791,8 +812,12 @@ ax12.annotate('c)',(-0.,1.02),xycoords='axes fraction',fontsize=14)
 # d) Angular velocity
 sec ='05-15'
 # panel 0, angular rotation
-bufω = gaussian_filter(sections[sec]['ω'].T,3)
-im0 = ax0.pcolormesh(xx,Zl.T,bufω,vmin=-30,vmax=20,shading='gouraud',cmap=mymap)
+bufω = gaussian_filter(sections[sec]['ω'][:end,:].T,3)
+Zl = sections[sec]['Z'][:end,:]
+vmin = -30
+if divgt: vmax = -vmin
+else: vmax = 20
+im0 = ax0.pcolormesh(xx,Zl.T,bufω,vmin=vmin,vmax=vmax,shading='gouraud',cmap=mymap)
 ax0.contour(Xxx,Zl.T,bufω,levels=np.arange(-25,20,5),linewidths=(1,1,1,1,1,4,1,1,1))
 ax0.set_ylim(18,30)
 ax0.grid(True)
@@ -800,15 +825,18 @@ ax0.grid(True)
 ax0.set_ylabel('Altitude (km)')
 ax0.xaxis_date()
 ax0.xaxis.set_major_formatter(date_format)
-ax0.set_title('Angular speed in '+sec+'S (degree/day)')
+ax0.set_title('Angular speed in 15°S-5°S (degree/day)')
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im0, cax=cax, orientation='vertical')
 ax0.annotate('d)',(-0.075,1.02),xycoords='axes fraction',fontsize=14)
 
 # e) DZDt diab
-bufw = gaussian_filter(sections[sec]['DZDt'].T,3)
-im1 = ax1.pcolormesh(xx,Zl.T,bufw,shading='gouraud',vmin=-20,vmax=70,cmap=mymap)
+bufw = gaussian_filter(sections[sec]['DZDt'][:end,:].T,3)
+vmax = 70
+if divgt: vmin = -vmax
+else: vmin = -20
+im1 = ax1.pcolormesh(xx,Zl.T,bufw,shading='gouraud',vmin=vmin,vmax=vmax,cmap=mymap)
 ax1.contour(Xxx,Zl.T,bufw,levels=np.arange(-10,70,10),linewidths=(1,4,1,1,1,1,1,1))
 ax1.set_ylim(18,30)
 ax1.xaxis_date()
@@ -818,7 +846,7 @@ ax1.grid(False)
 ax1.set_ylabel('  ')
 ax1.set_yticklabels('')
 ax1.xaxis.set_major_formatter(date_format)
-ax1.set_title('Diabatic radiative ascent rate in '+sec+'S (m/day)')
+ax1.set_title('Diabatic radiative ascent rate in 15°S-5°S (m/day)')
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im1, cax=cax, orientation='vertical')
@@ -827,8 +855,12 @@ ax1.annotate('e)',(-0.0,1.02),xycoords='axes fraction',fontsize=14)
 # f) Angular velocity
 sec ='15-25'
 # panel 0, angular rotation
-bufω = gaussian_filter(sections[sec]['ω'].T,3)
-im2 = ax2.pcolormesh(xx,Zl.T,bufω,vmin=-30,vmax=20,shading='gouraud',cmap=mymap)
+bufω = gaussian_filter(sections[sec]['ω'][:end,:].T,3)
+Zl = sections[sec]['Z'][:end,:]
+vmin = -30
+if divgt: vmax = -vmin
+else: vmax = 20
+im2 = ax2.pcolormesh(xx,Zl.T,bufω,vmin=vmin,vmax=vmax,shading='gouraud',cmap=mymap)
 ax2.contour(Xxx,Zl.T,bufω,levels=np.arange(-25,20,5),linewidths=(1,1,1,1,1,4,1,1,1))
 ax2.set_ylim(18,30)
 ax2.grid(True)
@@ -836,15 +868,18 @@ ax2.set_xlabel('Day in 2022')
 ax2.set_ylabel('Altitude (km)')
 ax2.xaxis_date()
 ax2.xaxis.set_major_formatter(date_format)
-ax2.set_title('Angular speed in '+sec+'S (degree/day)')
+ax2.set_title('Angular speed in 25°S-15°S (degree/day)')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im2, cax=cax, orientation='vertical')
 ax2.annotate('f)',(-0.075,1.02),xycoords='axes fraction',fontsize=14)
 
 # g) DZDt diab
-bufw = gaussian_filter(sections[sec]['DZDt'].T,3)
-im3 = ax3.pcolormesh(xx,Zl.T,bufw,shading='gouraud',vmin=-20,vmax=70,cmap=mymap)
+bufw = gaussian_filter(sections[sec]['DZDt'][:end,:].T,3)
+vmax = 70
+if divgt: vmin = -vmax
+else: vmin = -20
+im3 = ax3.pcolormesh(xx,Zl.T,bufw,shading='gouraud',vmin=vmin,vmax=vmax,cmap=mymap)
 ax3.contour(Xxx,Zl.T,bufw,levels=np.arange(-10,70,10),linewidths=(1,4,1,1,1,1,1,1))
 ax3.set_ylim(18,30)
 ax3.xaxis_date()
@@ -854,7 +889,7 @@ ax3.set_xlabel('Day in 2022')
 ax3.set_ylabel('  ')
 ax3.set_yticklabels('')
 ax3.xaxis.set_major_formatter(date_format)
-ax3.set_title('Diabatic radiative ascent rate in '+sec+'S (m/day)')
+ax3.set_title('Diabatic radiative ascent rate in 25°S-15°S (m/day)')
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 fig.colorbar(im3, cax=cax, orientation='vertical')
@@ -870,15 +905,20 @@ plt.show()
 
 ```python
 # fig 15
+figsave = True
+divgt = True
 fig = plt.figure(figsize=(5,4.5))
-im=plt.pcolormesh(lats,Zm,1.e6*dLPVdym,vmin=-3,vmax=8,cmap=mymap,shading=shading)
+vmax = 6
+if divgt: vmin = -vmax
+else: vmin = -3
+im=plt.pcolormesh(lats,Zm,1.e6*dLPVdym,vmin=vmin,vmax=vmax,cmap=mymap,shading=shading)
 plt.contour(Xlats,Zm,1.e6*dLPVdym,np.arange(-2,8),linewidths=(1,1,4,1,1,1,1,1,1,1)) 
 plt.colorbar(im)
 plt.ylim(ymin,ymax)
 plt.grid(True)
 plt.ylabel('Altitude (km)')
 plt.title('Lait PV gradient (PVU/degree)) ')
-plt.savefig('RayleighLPV.png',dpi=300,bbox_inches='tight')
+if figsave: plt.savefig('RayleighLPV.png',dpi=300,bbox_inches='tight')
 plt.show
 ```
 

@@ -2,8 +2,8 @@
 """
 This script averages the CALIOP sections for each orbit in a lat x alt view with 
 reduced latitude resolution. It is derived from Ncombinat.py.It performs the same
-initial averaging with 5 km resolution using 3600 points between 35S and 20N
-(Ncominat uses 3665 but 3660 has better factoring) which is subsequently shrinked 
+initial averaging with about 1668 m resolution using 3600 points between 35S and 20N
+(Ncombinat uses 3665 but 3660 has better factoring) which is subsequently shrinked 
 to 183 values by averaging over 20 points.
 
 See Ncombinat.py for the description of the 5km averaging

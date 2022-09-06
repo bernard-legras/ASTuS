@@ -7,9 +7,9 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.14.0
   kernelspec:
-    display_name: p310
+    display_name: p39N
     language: python
-    name: p310
+    name: p39n
 ---
 
 # Analysis of IMS data for the HT-plume
@@ -95,13 +95,16 @@ Latitude boundaries and time scale
 This section requires the zonal average to be run to provides dat.attr & days
 
 ```python
+day0 = date(2022,1,13)
+dat = IMS.IMS(day0)
+dat.read('SA','N')
 lats_edge = np.arange(dat.attr['la0'],dat.attr['la1']+0.5*dat.attr['dla'],dat.attr['dla'])
 jy0 = np.where(lats_edge > -35)[0][0]
 jy1 = np.where(lats_edge > 20)[0][0]
 lat0 = dat.attr['la0'] + jy0*dat.attr['dla']
 lat1 = dat.attr['la0'] + jy1*dat.attr['dla']
 xlims = mdates.date2num([days[0],days[-1]])
-date_format = mdates.DateFormatter('%b-%d')
+date_format = mdates.DateFormatter('%d-%b')
 ```
 
 Plot of the mean SA and SO2
@@ -141,7 +144,7 @@ fig = plt.figure(constrained_layout=True,figsize=(17,5.7))
 figsave = True
 #fig = plt.figure(figsize=(17,5.7))
 gs0 = fig.add_gridspec(2,1)
-gs1 = gs0[0].subgridspec(1,5,width_ratios=[10,0.8,10,0.6,10])
+gs1 = gs0[0].subgridspec(1,5,width_ratios=[10,0.7,10,0.8,10])
 # Other method
 #gs2 = gs0[1].subgridspec(1,4,width_ratios=[6,1,6,1],wspace=0.0)
 gs2 = gs0[1].subgridspec(1,3)
@@ -150,7 +153,7 @@ ax1 = fig.add_subplot(gs2[1])
 ax3 = fig.add_subplot(gs1[0],projection=ccrs.PlateCarree())
 ax2 = fig.add_subplot(gs1[2],sharey=ax3,projection=ccrs.PlateCarree())
 
-# The two upper IMS panels ax2 and ax3
+# The two upper IMS panels ax2 and ax3 (panels a & b)
 dat = IMS.IMS(date(2022,1,20))
 dat.read('SA','N')
 dat.read('SO2','N')
@@ -158,34 +161,38 @@ dat.read('SO2','N')
 ppbv2DU = 0.79
 dat.var['SO2_N'] *= ppbv2DU
 im2 = dat.show('SA_N',axf=ax2,xlims=(60,130),ylims=(-30,0),cmap=IMS.cmap3,log=True,
-               vmin=0.001,vmax=0.08,left=False,
-               txt = 'IMS/IASI SA OD 20 Jan 2022 night orbits')
+               vmin=0.002,vmax=0.1,left=False,
+               txt = 'IMS/IASI SA/OD 20 Jan 2022 night orbits')
 im3 = dat.show('SO2_N',axf=ax3,xlims=(60,130),ylims=(-30,0),cmap=IMS.cmap3,log=True,
                vmin=0.1,vmax=10,txt='IMS/IASI SO2 20 Jan 2022 night orbits (DU)')
 divider = make_axes_locatable(ax2)
 # higher pad shrinks in width (??)
 # the parameter axes_class=maxes.Axes is necessary due to the cartopy projection
 cax = divider.append_axes('right', size='5%', pad=0.1,axes_class=maxes.Axes) 
-fig.colorbar(im2, cax=cax, orientation='vertical')
+cbar2 = fig.colorbar(im2, cax=cax, orientation='vertical',ticks=[0.002,1e-2,1e-1])
+cbar2.ax.set_yticklabels(['0.002','0.01','0.1'])
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes('right', size='5%', pad=0.1,axes_class=maxes.Axes) # higher pad shrinks in width (??)
-fig.colorbar(im3, cax=cax, orientation='vertical')
+cbar3 = fig.colorbar(im3, cax=cax, orientation='vertical',ticks=[0.1,1,10])
+cbar3.ax.set_yticklabels(['0.1','1','10'])
 
-# The two lower IMS panels ax0 and ax1
+# The two lower IMS panels ax0 and ax1 (panels d & e)
 im0 = ax0.imshow(meanIMS['SO2'][:,jy0:jy1].T,aspect=1,cmap=IMS.cmap3,origin='lower',interpolation='nearest',
-                       norm=colors.LogNorm(vmin=0.2,vmax=1.4),extent=(xlims[0],xlims[-1],lat0,lat1))
+                       norm=colors.LogNorm(vmin=0.2,vmax=1.),extent=(xlims[0],xlims[-1],lat0,lat1))
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes('right', size='5%', pad=0.1) # higher pad shrinks in width (??)
-fig.colorbar(im0, cax=cax, orientation='vertical')
+cbar0 = fig.colorbar(im0, cax=cax, orientation='vertical',ticks=[0.2,0.3,0.4,0.6,1])
+cbar0.ax.set_yticklabels(['0.2','0.3','0.4','0.6','1'])
 ax0.xaxis.set_major_formatter(date_format)
 im1 = ax1.imshow(meanIMS['SA'][:,jy0:jy1].T,aspect=1,cmap=IMS.cmap3,origin='lower',interpolation='nearest',
-                       norm=colors.LogNorm(vmin=None,vmax=None),extent=(xlims[0],xlims[-1],lat0,lat1))
+                       norm=colors.LogNorm(vmin=0.003,vmax=0.012),extent=(xlims[0],xlims[-1],lat0,lat1))
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes('right', size='5%', pad=0.1)
-fig.colorbar(im1, cax=cax, orientation='vertical',shrink=0.5)
+cbar1 = fig.colorbar(im1, cax=cax, orientation='vertical',ticks=[0.003,0.004,0.006,0.01,0.012])
+cbar1.ax.set_yticklabels(['0.003','0.004','0.006','0.01','0.012'])
 ax1.xaxis.set_major_formatter(date_format)
 
-# Adding the CALIOP plot
+# Adding the CALIOP plot as panel f
 with gzip.open(os.path.join('..','HT-OMPS','integrated_CALIOP_OMPS.pkl'),'rb') as f:
     [column_CALIOP,column_MLS,attribs] = pickle.load(f)
 xxe = mdates.date2num(attribs['days_edge'])
@@ -195,34 +202,33 @@ ax5 = fig.add_subplot(gs2[2])
 apr30 = np.where(xx == mdates.date2num(date(2022,4,30)))[0][0]
 vmax = 1.4e-3
 im5 = ax5.imshow(column_CALIOP[0:apr30+1,:].T,extent=(xx[0],xx[93],attribs['lats'][0],attribs['lats'][-1]),
-           cmap=IMS.cmap3,norm=colors.LogNorm(vmax=0.0015),origin='lower')
+           cmap=IMS.cmap3,norm=colors.LogNorm(vmax=0.0012,vmin=0.0003),origin='lower')
 #im5 = ax5.pcolormesh(xxe,lats_edge,column_CALIOP.T,cmap=IMS.cmap3,norm=colors.LogNorm())
 #ax5.set_xlim(xx[0],mdates.date2num(date(2022,4,30))+0.5)
 ax5.xaxis_date()
-date_format = mdates.DateFormatter('%b-%d')
 ax5.xaxis.set_major_formatter(date_format)
 ax5.grid(True)
 ax5.set_ylabel('    ')
 ax5.set_yticklabels('')
 ax5.set_xlabel('Day in 2022')
-ax5.set_title(u'CALIOP total attenuated scattering (str$^{-1}$)')
+ax5.set_title(u'532 nm total backscatter (per steradian)')
 divider = make_axes_locatable(ax5)
 cax = divider.append_axes('right', size='5%', pad=0.1)
-fig.colorbar(im5, cax=cax, orientation='vertical',shrink=0.5)
-
+cbar5 = fig.colorbar(im5, cax=cax, orientation='vertical',ticks=[0.0003,0.0004,0.0006,0.001,0.0012])
+#cbar5.ax.set_yticklabels(['0.0003','0.0004','0.0006','0.001','0.0012'])
 fig.autofmt_xdate()
 
 ax0.set_ylabel('Latitude')
 ax1.set_yticklabels('')
 ax1.set_ylabel('   ')
 ax0.set_title('zonal average IMS/IASI SO2 (DU)')
-ax1.set_title('zonal average IMS/IASI SA OD')
+ax1.set_title('zonal average IMS/IASI SA/OD')
 ax0.set_xlabel('Day in 2022')
 ax1.set_xlabel('Day in 2022')
 ax0.grid(True)
 ax1.grid(True)
 
-#  Adding the RGSB Ash panel
+#  Adding the RGSB Ash panel as panel c
 ax4 = fig.add_subplot(gs1[4])
 import matplotlib.image as image
 rgb = image.imread(os.path.join('..','HT-GEO','RGB-16h-fig4.png'))
@@ -250,29 +256,30 @@ dat.read('SA','N')
 dat.read('SO2','N')
 # Conversion factor from ppbv to DU for SO2
 ppbv2DU = 0.79
-figsave = False
+figsave = True
 
 #IMS plots
 ax3 = fig.add_subplot(gs[3],projection=ccrs.PlateCarree())
 ax2 = fig.add_subplot(gs[4],projection=ccrs.PlateCarree())
 im2 = dat.show('SA_N',axf=ax2,xlims=(150,180),ylims=(-30,-10),cmap=IMS.cmap3,
-               log=True,vmin=0.001,vmax=0.08,aspect=1,txt='IMS/IASI SA OD 16 Jan 2022')
-im3 = dat.show('SO2_N',axf=ax3,xlims=(150,180),ylims=(-30,-10),cmap=IMS.cmap3,aspect=1,
-               log=True,vmin=0.1,vmax=40,txt='IMS/IASI SO2 16 Jan 2022 (DU)')
+               log=True,vmin=0.002,vmax=0.1,aspect=1,txt='IMS/IASI SA/OD 16 Jan 2022')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes('bottom', size='10%', pad=0.3,axes_class=maxes.Axes) 
-fig.colorbar(im2, cax=cax, orientation='horizontal')
+cbar2 = fig.colorbar(im2, cax=cax, orientation='horizontal',ticks=[0.002,1e-2,1e-1])
+cbar2.ax.set_xticklabels(['0.002','0.01','0.1'])
+im3 = dat.show('SO2_N',axf=ax3,xlims=(150,180),ylims=(-30,-10),cmap=IMS.cmap3,aspect=1,
+               log=True,vmin=0.1,vmax=40,txt='IMS/IASI SO2 16 Jan 2022 (DU)')
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes('bottom', size='10%', pad=0.3,axes_class=maxes.Axes)
-fig.colorbar(im3, cax=cax, orientation='horizontal')
-
+cbar3 = fig.colorbar(im3, cax=cax, orientation='horizontal', ticks=[0.1,1,10,40])
+cbar3.ax.set_xticklabels(['0.1','1','10','40'])
 
 with gzip.open(os.path.join('..','HT-HT','superCatal_caliop.0_nit.pkl'),'rb') as f:
-    catal = pickle.load(f)
+    catal0 = pickle.load(f)
 ax0 = fig.add_subplot(gs[0])
-latsEdge = catal['attr']['lats_edge']
-altsEdge = catal['attr']['alts_edge']
-im0=ax0.pcolormesh(latsEdge,altsEdge,catal['data'][24]['SR532'].T,
+latsEdge = catal0['attr']['lats_edge']
+altsEdge = catal0['attr']['alts_edge']
+im0=ax0.pcolormesh(latsEdge,altsEdge,catal0['data'][24]['SR532'].T,
                    vmin=0,vmax=200,cmap='gist_ncar')
 ax0.set_xlim(-30,-10)
 ax0.set_ylim(24,34)
@@ -280,7 +287,7 @@ divider = make_axes_locatable(ax0)
 cax = divider.append_axes('right', size='9%',pad=0.07,axes_class=maxes.Axes) 
 fig.colorbar(im0, cax=cax, orientation='vertical')
 ax1 = fig.add_subplot(gs[1])
-im1=ax1.pcolormesh(latsEdge,altsEdge,100*catal['data'][24]['DEPOL'].T,
+im1=ax1.pcolormesh(latsEdge,altsEdge,100*catal0['data'][24]['DEPOL'].T,
                    vmin=0,vmax=2,cmap='jet')
 ax1.set_xlim(-30,-10)
 ax1.set_ylim(24,34)
@@ -303,10 +310,6 @@ ax2.annotate('h)',(-0.1,1.05),xycoords='axes fraction',fontsize=14)
 ax3.annotate('g)',(-0.1,1.05),xycoords='axes fraction',fontsize=14)
 if figsave: plt.savefig('IMS-CALIOP-fig3.png',dpi=300,bbox_inches='tight')
 plt.show()
-```
-
-```python
-
 ```
 
 ## Composite des images SA
@@ -349,10 +352,11 @@ for day in days1:
     axs[jd].set_ylim(-35,0)
     jd += 1
 fig.subplots_adjust(bottom=0.06)
-cbar_ax = fig.add_axes([0.2,0.02,0.6,0.02])
+#cbar_ax = fig.add_axes([0.002,0.005,0.01])
 # colorbar ticks must be set manually here
-cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2])
-cbar.ax.set_xticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
+#cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',shrink=0.5)
+#cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2])
+#cbar.ax.set_xticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
 if figsave: plt.savefig('IMS-fig5.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
@@ -410,7 +414,7 @@ plt.show()
 ACHTUNG: This version requires lon28 and lat28 which are provided by the AEOLUS section below
 
 ```python
-figsave = False
+figsave = True
 days3 = [date(2022,1,28),date(2022,2,4),date(2022,2,22),date(2022,3,7)]
 ND3 = ['D','D','N','N']
 anot3 = ['a)','b)','c)','d)','e)','f)','g)']
@@ -429,12 +433,12 @@ fig, axs = plt.subplots(figsize=(14,7),nrows=4,ncols=1,sharex=True,\
 jd = 0
 for day in days3:
     dat = IMS.IMS(day)
-    dat.read('SA',ND[jd])
+    dat.read('SA',ND3[jd])
     dat2 = dat
     if jd == 3: bottom=True
     else: bottom = False
     bottom=True
-    im = dat2.show('SA_'+ND3[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.03,cmap=IMS.cmap3,log=True,cm=cm,
+    im = dat2.show('SA_'+ND3[jd],axf=axs[jd],txt='',vmin=0.002,vmax=0.05,cmap=IMS.cmap3,log=True,cm=cm,
                    ylims=(-35,0),bottom=bottom)
     axs[jd].annotate(anot3[jd],(-0.05,1),xycoords='axes fraction',fontsize=14)
     axs[jd].text(-150, 0.845, day.strftime('%d %b ')+ND3[jd], ha="center", va="center", size=15,
@@ -448,8 +452,9 @@ for day in days3:
 fig.subplots_adjust(bottom=0.06)
 cbar_ax = fig.add_axes([0.2,0.02,0.6,0.02])
 # colorbar ticks must be set manually here
-cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2,3e-2])
-cbar.ax.set_xticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$',u'3 10$^{-2}$'])
+cbar = fig.colorbar(im,cax=cbar_ax,orientation='horizontal',ticks=[2e-3,5e-3,1e-2,2e-2,5e-2])
+#cbar.ax.set_xticklabels([u'2 x 10$^{-3}$',u'5 x 10$^{-3}$',u'10$^{-2}$',u'2 x 10$^{-2}$',u'5 x 10$^{-2}$'])
+cbar.ax.set_xticklabels(['0.002','0.005','0.01','0.02','0.05'])
 if figsave: plt.savefig('IMS-fig5ter.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
@@ -517,7 +522,6 @@ fig, axc = plt.subplots(figsize=(15,2),nrows=1,ncols=8,sharey=True)
 figsave = False
 latsEdge = catal[2]['attr']['lats_edge']
 altsEdge = catal[2]['attr']['alts_edge']
-
 im = {}
 for jd in range(8):
     im[jd] = axc[jd].pcolormesh(latsEdge,altsEdge,catal[sel1[jd]]['data'][idx1[jd]]['SR532'].T,
@@ -618,7 +622,7 @@ print('24 Jan',date24,np.mean(lon24))
 print('28 Jan',date28,np.mean(lon28))
 ```
 
-## New figure 6
+## New figure 6 in horizontal format
 
 ```python
 # This needs gridspec instead of subplots as the projections are différents
@@ -637,12 +641,11 @@ dat.read('SA','N')
 im0 = dat.show('SA_N',axf=ax0,txt=' ',vmin=0.002,vmax=0.05,cmap=IMS.cmap3,log=True,cm=0,
                    ylims=(-35,0),xlims=(-20,10),bottom=True)
 ax0.plot(lon24-360,lat24,lw=3,color='orange')
-ax0.set_title(day.strftime('a)   IMS/IASI SA OD %d %b'))
+ax0.set_title(day.strftime('a)   IMS/IASI SA/OD %d %b'))
 div0 = make_axes_locatable(ax0)
 cax = div0.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
-cbar=fig.colorbar(im0, cax=cax, orientation='vertical')
-cbar.set_ticks([2e-3,5e-3,1e-2,2e-2,5e-2])
-cbar.set_ticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$',u'5 10$^{-2}$'])
+cbar=fig.colorbar(im0, cax=cax, orientation='vertical',ticks=[2e-3,5e-3,1e-2,2e-2,5e-2])
+cbar.ax.set_yticklabels(['0.002','0.005','0.01','0.02','0.05'])
 
 # panel 4 for Aladin  24 Jan
 ax4 = fig.add_subplot(gs[1,0])
@@ -702,15 +705,15 @@ ax2 = fig.add_subplot(gs[0,2],projection=ccrs.PlateCarree())
 day = date(2022,1,30)
 dat = IMS.IMS(day)
 dat.read('SA','D')
-im2 = dat.show('SA_D',axf=ax2,txt=' ',vmin=0.002,vmax=0.04,cmap=IMS.cmap3,log=True,cm=0,
+im2 = dat.show('SA_D',axf=ax2,txt=' ',vmin=0.002,vmax=0.05,cmap=IMS.cmap3,log=True,cm=0,
                    ylims=(-35,0),xlims=(-120,-90),bottom=True)
 ax2.plot(sektions[2]['data'][53]['lons'],sektions[2]['data'][53]['lats'],'r',lw=3)
-ax2.set_title(day.strftime('e)   IMS/IASI SA OD %d %b'))
+ax2.set_title(day.strftime('e)   IMS/IASI SA/OD %d %b'))
 div2 = make_axes_locatable(ax2)
 cax = div2.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
-cbar=fig.colorbar(im2, cax=cax, orientation='vertical')
-cbar.set_ticks([2e-3,5e-3,1e-2,2e-2])
-cbar.set_ticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
+cbar=fig.colorbar(im2, cax=cax, orientation='vertical',ticks=[2e-3,5e-3,1e-2,2e-2,5e-2])
+#cbar.set_ticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
+cbar.ax.set_yticklabels(['0.002','0.005','0.01','0.02','0.05'])
 
 # panel 6 for hairy Caliop 30 Jan
 # CALIOP orbit (53) at 09:37 
@@ -740,12 +743,12 @@ im3 = dats.show('SA_N',axf=ax3,txt=' ',vmin=0.002,vmax=0.02,cmap=IMS.cmap3,log=T
                    ylims=(-35,0),xlims=(170-180,200-180),bottom=True,xlocs=())
 ax3.plot(sektions[2]['data'][231]['lons']+180,sektions[2]['data'][231]['lats'],'r',lw=3)
 #ax0.plot(lon24,lat24,lw=3,color='orange')
-ax3.set_title(day.strftime('g)   IMS/IASI SA OD %d %b'))
+ax3.set_title(day.strftime('g)   IMS/IASI SA/OD %d %b'))
 div3 = make_axes_locatable(ax3)
-cax = div3.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
-cbar=fig.colorbar(im3, cax=cax, orientation='vertical')
-cbar.set_ticks([2e-3,3e-3,4e-3,5e-3,6e-3,1e-2,2e-2])
-cbar.set_ticklabels([u'2 10$^{-3}$','','',u'5 10$^{-3}$','',u'10$^{-2}$',u'2 10$^{-2}$'])
+cax = div3.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes)
+# Weird but this avoids spurious ticks that show up otherwise
+cbar3=fig.colorbar(im3, cax=cax, orientation='vertical',ticks=[0.002,0.003,0.004,0.005,0.006,0.01,0.02])
+cbar3.ax.set_yticklabels(['0.002','','','0.005','','0.01','0.02'])
 # Not nice but works
 ax3.set_xticks((-10,0,10,20))
 ax3.set_xticklabels(('170°E','180°','170°W','160°W'))
@@ -772,7 +775,164 @@ if savefig: plt.savefig('NewFig6.png',dpi=300,bbox_inches='tight')
 plt.show()
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] -->
+## New fig 6 in vertical format
+
+```python
+# This needs gridspec instead of subplots as the projections are différents
+fig = plt.figure(constrained_layout=True,figsize=(9.2,18))
+savefig = True
+gs = fig.add_gridspec(4,2)
+latsEdge = catal[2]['attr']['lats_edge']
+altsEdge = catal[2]['attr']['alts_edge']
+
+# panel 0 for IMS 24 Jan 
+# On this day Aladin orbit at 18:36 by 7°W is close to the night orbit of IASI at 22:52
+ax0 = fig.add_subplot(gs[0,0],projection=ccrs.PlateCarree())
+day = date(2022,1,24)
+dat = IMS.IMS(day)
+dat.read('SA','N')
+im0 = dat.show('SA_N',axf=ax0,txt=' ',vmin=0.002,vmax=0.05,cmap=IMS.cmap3,log=True,cm=0,
+                   ylims=(-35,0),xlims=(-20,10),bottom=True)
+ax0.plot(lon24-360,lat24,lw=3,color='orange')
+ax0.set_title(day.strftime('a)   IMS/IASI SA/OD %d %b'))
+ax0.set_xlabel('Longitude')
+ax0.set_ylabel('Latitude')
+div0 = make_axes_locatable(ax0)
+cax = div0.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
+cbar=fig.colorbar(im0, cax=cax, orientation='vertical',ticks=[2e-3,5e-3,1e-2,2e-2,5e-2])
+cbar.ax.set_yticklabels(['0.002','0.005','0.01','0.02','0.05'])
+
+# panel 4 for Aladin  24 Jan
+ax4 = fig.add_subplot(gs[0,1])
+im4 = ax4.scatter(ael[24]['lats'], 1.e-3*ael[24]['alts'], c = ael[24]['uano'], cmap = 'coolwarm', vmin=-6., vmax=6., s=70.)
+ax4.set_xlim(-30,0)
+ax4.set_ylim(18,30)
+ax4.set_xlabel('Latitude')
+ax4.set_ylabel('Altitude (km)')
+ax4.set_title(day.strftime(u'b)  Aladin velocity %d %b (m s$^{-1}$)'))
+ax4.grid(True)
+div4 = make_axes_locatable(ax4)
+cax = div4.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes)
+cbar=fig.colorbar(im4, cax=cax, orientation='vertical')
+# Trick to buy some space on the left axis
+buf = div4.append_axes('left', size='6%', pad=0.07)
+buf.axis('off')
+
+# panel 1 for Aladin  28 Jan
+# Aladin orbit at 05:12
+# The shown day orbit of IMS on fig.5 is at 08:48
+day = date(2022,1,28)
+ax1 = fig.add_subplot(gs[1,0])
+im1 = ax1.scatter(ael[28]['lats'], 1.e-3*ael[28]['alts'], c = ael[28]['uano'], cmap = 'coolwarm', vmin=-6., vmax=6., s=70.)
+ax1.set_ylim(18,30)
+ax1.set_xlim(-35,-5)
+ax1.set_xlabel('Latitude')
+ax1.set_ylabel('Altitude (km)')
+ax1.set_title(day.strftime(u'c)  Aladin velocity %d %b (m s$^{-1}$)'))
+ax1.grid(True)
+div1 = make_axes_locatable(ax1)
+cax = div1.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes)
+fig.colorbar(im1, cax=cax, orientation='vertical')
+# Trick to buy some space on the left axis
+buf = div1.append_axes('left', size='6%', pad=0.07)
+buf.axis('off')
+
+# panel 5 for Caliop 28 Jan
+# CALIOP orbit (19) at 01:48
+ax5 =  fig.add_subplot(gs[1,1])
+im5 = ax5.pcolormesh(latsEdge,altsEdge,catal[2]['data'][19]['SR532'].T,
+                                norm=colors.LogNorm(vmin=0.5,vmax=200),cmap='gist_ncar',)
+ax5.set_xlim(-35,-5)
+ax5.set_ylim(18,30)
+ax5.grid(True)
+ax5.set_yticklabels('')
+ax5.set_xlabel('Latitude')
+ax5.set_title(day.strftime('d)      CALIOP 532 nm SR 11°E  %d %b'))
+div5 = make_axes_locatable(ax5)
+cax = div5.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
+fig.colorbar(im5, cax=cax, orientation='vertical')
+buf = div5.append_axes('left', size='6%', pad=0.07)
+buf.axis('off')
+
+# panel 2 for IMS 30 Jan
+# This orbit is a day orbit 11:28
+ax2 = fig.add_subplot(gs[2,0],projection=ccrs.PlateCarree())
+day = date(2022,1,30)
+dat = IMS.IMS(day)
+dat.read('SA','D')
+im2 = dat.show('SA_D',axf=ax2,txt=' ',vmin=0.002,vmax=0.05,cmap=IMS.cmap3,log=True,cm=0,
+                   ylims=(-35,0),xlims=(-120,-90),bottom=True)
+ax2.plot(sektions[2]['data'][53]['lons'],sektions[2]['data'][53]['lats'],'r',lw=3)
+ax2.set_title(day.strftime('e)   IMS/IASI SA/OD %d %b'))
+div2 = make_axes_locatable(ax2)
+cax = div2.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
+cbar=fig.colorbar(im2, cax=cax, orientation='vertical',ticks=[2e-3,5e-3,1e-2,2e-2,5e-2])
+#cbar.set_ticklabels([u'2 10$^{-3}$',u'5 10$^{-3}$',u'10$^{-2}$',u'2 10$^{-2}$'])
+cbar.ax.set_yticklabels(['0.002','0.005','0.01','0.02','0.05'])
+
+# panel 6 for hairy Caliop 30 Jan
+# CALIOP orbit (53) at 09:37 
+ax6 =  fig.add_subplot(gs[2,1])
+im6 = ax6.pcolormesh(latsEdge,altsEdge,catal[2]['data'][53]['SR532'].T,
+                                norm=colors.LogNorm(vmin=0.5,vmax=200),cmap='gist_ncar',)
+ax6.set_xlim(-30,0)
+ax6.set_ylim(18,30)
+ax6.grid(True)
+#ax6.set_yticklabels('')
+ax6.set_ylabel('Altitude (km)')
+ax6.set_xlabel('Latitude')
+ax6.set_title(day.strftime('f)      CALIOP 532 nm SR 106°W  %d %b'))
+div6 = make_axes_locatable(ax6)
+cax = div6.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
+fig.colorbar(im6, cax=cax, orientation='vertical')
+buf = div6.append_axes('left', size='6%', pad=0.07)
+buf.axis('off')
+
+# panel 3 for IMS 11 Feb
+# This panel is a night orbit at 09:49 
+ax3 = fig.add_subplot(gs[3,0],projection=ccrs.PlateCarree())
+day = date(2022,2,11)
+dat = IMS.IMS(day)
+dat.read('SA','N')
+dats = dat.shift(0)
+im3 = dats.show('SA_N',axf=ax3,txt=' ',vmin=0.002,vmax=0.02,cmap=IMS.cmap3,log=True,cm=180,
+                   ylims=(-35,0),xlims=(170-180,200-180),bottom=True,xlocs=())
+ax3.plot(sektions[2]['data'][231]['lons']+180,sektions[2]['data'][231]['lats'],'r',lw=3)
+#ax0.plot(lon24,lat24,lw=3,color='orange')
+ax3.set_title(day.strftime('g)   IMS/IASI SA/OD %d %b'))
+div3 = make_axes_locatable(ax3)
+cax = div3.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes)
+# Weird but this avoids spurious ticks that show up otherwise
+cbar3=fig.colorbar(im3, cax=cax, orientation='vertical',ticks=[0.002,0.003,0.004,0.005,0.006,0.01,0.02])
+cbar3.ax.set_yticklabels(['0.002','','','0.005','','0.01','0.02'])
+# Not nice but works
+ax3.set_xticks((-10,0,10,20))
+ax3.set_xticklabels(('170°E','180°','170°W','160°W'))
+
+# panel 7 for Caliop 11 Feb
+# CALIOP orbit (231) at 13:52
+ax7 =  fig.add_subplot(gs[3,1])
+im7 = ax7.pcolormesh(latsEdge,altsEdge,catal[2]['data'][231]['SR532'].T,
+                                norm=colors.LogNorm(vmin=0.5,vmax=200),cmap='gist_ncar')
+ax7.set_xlim(-35,-5)
+ax7.set_ylim(18,30)
+ax7.grid(True)
+#ax7.set_yticklabels('')
+ax7.set_ylabel('Altitude (km)')
+ax7.set_xlabel('Latitude')
+ax7.set_title(day.strftime('h)      CALIOP 532 nm SR 170°W  %d %b'))
+#ax5.set_title(anot[jd+1]+catal[sel[jd+1]]['data'][idx[jd+1]]['date'].strftime('  %d %b'))
+div7 = make_axes_locatable(ax7)
+cax = div7.append_axes('right', size='6%', pad=0.07,axes_class=maxes.Axes) 
+fig.colorbar(im7, cax=cax, orientation='vertical')
+buf = div7.append_axes('left', size='6%', pad=0.07)
+buf.axis('off')
+
+if savefig: plt.savefig('NewFig6-vert.png',dpi=300,bbox_inches='tight')
+plt.show()
+```
+
+<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
 ## Investigation for spurious large values
 <!-- #endregion -->
 
