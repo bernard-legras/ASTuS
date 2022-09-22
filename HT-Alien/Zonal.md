@@ -788,7 +788,7 @@ ax11.grid(True)
 ax11.set_ylabel('  ')
 ax11.set_yticklabels(' ')
 ax11.set_xlabel('Latitude')
-ax11.set_title('Diabatic radiative DZ/Dt (m/day)')
+ax11.set_title('Diabatic radiative ascent rate (m/day)')
 ax11.annotate('b)',(-0.,1.02),xycoords='axes fraction',fontsize=14)
 
 # c) DZDt adiabatic
@@ -806,7 +806,7 @@ ax12.grid(True)
 ax12.set_ylabel('  ')
 ax12.set_yticklabels(' ')
 #plt.xlabel('Latitude')
-ax12.set_title(' Adiabatic DZ/Dt (m/day)')
+ax12.set_title(' Adiabatic ascent rate (m/day)')
 ax12.annotate('c)',(-0.,1.02),xycoords='axes fraction',fontsize=14)
 
 # d) Angular velocity
