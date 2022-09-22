@@ -17,7 +17,7 @@ the ATBD formulae for the molecular scattering.
 In the present application the levels 32 to 125 are selected in the original 
 section (93 levels) and the latitudes are truncated between 35S and 20N.
 As the latitude sampling varies from orbit to orbit, the [35S, 20N] interval is
-sampled over 3665 values corresponding to 1665m resolution which is nominal 
+sampled over 3665 values corresponding to 5 km resolution which is nominal 
 between 20 and 30 km. The original data are grouped and average by 5. 
 The findbndry fuction finds the boundary of blocks where the values are identical.
 This should be the case, but not always, hence the exploration by finbndry to 
@@ -133,8 +133,8 @@ day0 = date(2022,5,4)
 day1 = date(2022,5,6)
 day0 = date(2022,5,15)
 day1 = date(2022,5,19)
-day0 = date(2022,8,1)
-day1 = date(2022,8,9)
+day0 = date(2022,8,18)
+day1 = date(2022,8,27)
 day = day0
 
 while day <= day1:
@@ -227,5 +227,5 @@ while day <= day1:
     plt.close()
 
     combinat['attr'] = {'lats':lats,'alts':alts[top:bottom],'lats_edge':lats2,'alts_edge':alts_edges[top:bottom+1]}
-    with gzip.open(os.path.join('.','Ncombinat-daily-'+str(sel)+'_'+ND+'-s15.pkl'),'wb') as f:
+    with gzip.open(os.path.join('.','Ncombinat-daily-'+str(sel)+'_'+ND+'-s16b.pkl'),'wb') as f:
         pickle.dump(combinat,f,protocol=pickle.HIGHEST_PROTOCOL)

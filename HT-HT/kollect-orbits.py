@@ -44,7 +44,8 @@ date0 = datetime(2022,1,26)
 date1 = datetime(2022,3,27)
 name_sel = 'Nsel2'
 date0 = datetime(2022,3,31)
-date1 = datetime(2022,8,9)
+date1 = datetime(2022,8,27)
+
 name_sel = 'Nsel3'
 #date0 = datetime(2022,1,15)
 #date1 = datetime(2022,1,19)
